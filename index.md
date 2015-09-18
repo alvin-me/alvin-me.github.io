@@ -1,7 +1,9 @@
 ---
 layout: page
-title: Hello World!
+title: "首页"
 tagline: Supporting tagline
+group: navigation
+weight: 1
 ---
 {% include JB/setup %}
 

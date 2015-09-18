@@ -1,0 +1,23 @@
+<a href="#"><i class="icon-fixed-width icon-heart"></i> 与我联系</a>
+<div id="contacts-list">
+  <a href="mailto:alvin-me@hotmail.com" target="_blank" title="Email">
+    <i class="icon-large icon-fixed-width icon-envelope"></i>
+  </a>
+  <a href="https://github.com/alvin-me" target="_blank" title="Github">
+    <i class="icon-large icon-fixed-width icon-github"></i>
+  </a>
+  <!--
+  <a href="#" target="_blank" title="新浪微博">
+    <i class="icon-large icon-fixed-width icon-weibo"></i>
+  </a>
+  <a href="#" target="_blank" title="Google+">
+    <i class="icon-large icon-fixed-width icon-google-plus"></i>
+  </a>
+  <a href="#" target="_blank" title="Twitter">
+    <i class="icon-large icon-fixed-width icon-twitter"></i>
+  </a>
+  <a href="#" target="_blank" title="Facebook">
+    <i class="icon-large icon-fixed-width icon-facebook"></i>
+  </a>
+  -->
+</div>
