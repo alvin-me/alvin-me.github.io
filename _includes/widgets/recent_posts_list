@@ -1,4 +1,4 @@
-<a href="{{ site.JB.archive_path }}" title="查看所有文章">
+<a href="{{ HOME_PATH }}" title="查看所有文章">
 	<i class="icon-fixed-width icon-edit"></i> 最近发表
 </a>
 <span title="文章总数">{{ site.posts | size }}</span>

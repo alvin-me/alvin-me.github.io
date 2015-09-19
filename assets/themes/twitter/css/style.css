@@ -157,6 +157,10 @@ a:hover, a:active { outline: none; }
   padding: 3px 0;
   font-size: 86%;
   text-shadow: none;
+  display:block;
+  white-space:nowrap;
+  overflow:hidden; 
+  text-overflow:ellipsis;
 }
 #sidebar section span {
   float: right;
