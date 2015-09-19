@@ -85,6 +85,8 @@ JB :
   #
   comments :
     provider : duoshuo
+    duoshuo :
+      short_name : alvin
     disqus :
       short_name : alvin
     livefyre :
@@ -96,15 +98,15 @@ JB :
       num_posts: 5
       width: 580
       colorscheme: light
-    duoshuo :
-      short_name : alvin
    
   # Settings for analytics helper
   # Set 'provider' to the analytics provider you want to use.
   # Set 'provider' to false to turn analytics off globally.
   #        
   analytics :
-    provider : google
+    provider : baidu
+    baidu :
+      tracking_id : '5a526f31c0403b35a0310f0aac5151d3' 
     gauges :
         site_id : 'SITE ID'
     google : 
