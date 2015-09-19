@@ -199,10 +199,11 @@ article header {
   padding-bottom: 10px;
   margin-bottom: 20px;
 }
-article header h1, article header h2 { float: left; }
+/*article header h1, article header h2 { float: left; }*/
 article header h1 { font-size: 198%; }
 article header h2 { font-size: 168%; }
 article header a:hover { color: #036; }
+article header small { color: #777;  font-size: 65%; }
 article section { overflow: hidden; }
 article section h2, article section h3, article section h4, article section h5 { 
   margin-top: 1.0em;
@@ -251,7 +252,7 @@ article footer {
   color: #666;
 }
 
-.page header, .post header { height: 40px; }
+.page header, .post header { min-height: 40px; }
 .post-extra {
   font-size: 115%;
   overflow: hidden;
