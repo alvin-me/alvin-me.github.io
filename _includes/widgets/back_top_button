@@ -1,5 +1,5 @@
 <div id="back-top">
-  <a href="#top" title="回到顶部"></a>
+  <a href="#top" title="回到顶部"><i class="icon-2x icon-arrow-up"></i></a>
 </div>
 <script type="text/javascript">
 $("#back-top").hide();
