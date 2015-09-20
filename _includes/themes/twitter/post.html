@@ -5,12 +5,12 @@
         </header>
         <section>
             <div class="post-extra">
-                <div class="pull-left"><span>{{ page.date | date_to_long_string }}</span></div>
+                <!-- <div class="pull-left"><span>{{ page.date | date_to_long_string }}</span></div> -->
                 <div class="pull-right">{% include widgets/share_buttons %}</div>
             </div>
             {{ content }}
             <footer>
-                <p></p>
+                <blockquote>写于{{ page.date | date: "%Y年%m月%d日" }};</blockquote>
             </footer>
         </section>
     </article>
