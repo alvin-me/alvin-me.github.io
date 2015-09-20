@@ -1,6 +1,6 @@
 <form id="search-form">
-  <input id="query" type="text" placeholder="正则搜索"></input>
-  <button type="submit"><i class="icon-search"></i></button>
+  <input id="query" type="text" placeholder="正则搜索" disabled="disabled"></input>
+  <button type="submit" disabled="disabled"><i class="icon-search"></i></button>
 </form>
 <script type="text/javascript">
 $(document).ready(function() {
