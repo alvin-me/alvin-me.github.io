@@ -86,9 +86,9 @@ JB :
   comments :
     provider : duoshuo
     duoshuo :
-      short_name : alvin
+      short_name : alvin-me
     disqus :
-      short_name : alvin
+      short_name : alvin-me
     livefyre :
       site_id : 123
     intensedebate :
