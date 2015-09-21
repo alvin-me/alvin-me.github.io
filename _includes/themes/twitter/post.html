@@ -10,7 +10,7 @@
             </div>
             {{ content }}
             <footer>
-                <blockquote>写于{{ page.date | date: "%Y年%m月%d日" }};</blockquote>
+                <blockquote>于{{ page.date | date: "%Y年%m月%d日" }}，共写了{{ content | strip_html | strip_newlines | split: "" | size }}字;</blockquote>
             </footer>
         </section>
     </article>
