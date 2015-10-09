@@ -29,6 +29,8 @@ tags : ["FileSystemWatcher", "FileWatcher"]
 
 ## 二、实现文件监听
 
+####1、FileSystemWatcher
+
 文件监听主要是通过 System.IO.FileSystemWatcher 接口实现的，该接口的使用比较简单，
 
 ```csharp
@@ -42,33 +44,37 @@ watcher.Changed += new FileSystemEventHandler(this.fileSystemWatching); // 当�
 watcher.Renamed += new RenamedEventHandler(this.fileSystemWatching);	// 重命名文件或目录时发生并调用回调函数
 watcher.EnableRaisingEvents = true;	// 设置是否开始监控，默认为false
 ```
+####2、注意事项
+#####1) 线程问题
 
-**NOTE:** 
+因为 FileSystemWatcher 类本身就是多线程的控件，在回调函数中处理监听事件，向显示列表中添加一条监听信息。该线程需要更新界面上的元素，就会有一个线程安全性问题，需要按照下面的方式更新窗体元素。
 
-1. 因为 FileSystemWatcher 类本身就是多线程的控件，在回调函数中处理监听事件，向显示列表中添加一条监听信息。该线程需要更新界面上的元素，就会有一个线程安全性问题，需要按照下面的方式更新窗体元素。
+```csharp
+Application.Current.Dispatcher.Invoke((Action)(() =>
+{
+	// update UI
+}));
+```
+#####2) 监听指定文件类型
 
-	```csharp
-	Application.Current.Dispatcher.Invoke((Action)(() =>
-	{
-		// update UI
-	}));
-	```
-2. FileSystemWatcher.Filter 设置筛选字符串，用于确定在目录中监视哪些类型的文件，如`watcher.Filter="*.txt"`将会只监听文本文件的状态，其他文件类型不会监听，默认值是`"*.*"`表示监听全部文件。<br/>
+FileSystemWatcher.Filter 设置筛选字符串，用于确定在目录中监视哪些类型的文件，如`watcher.Filter="*.txt"`将会只监听文本文件的状态，其他文件类型不会监听，默认值是`"*.*"`表示监听全部文件。<br/>
 因为 FileSystemWatcher.Filter 不支持"或"组合，当我们需要监听两种以上指定文件类型时，一种方式是通过创建多个 FileSystemWatcher，并为每个 FileSystemWatcher 指定监听其中一种文件类型。但这种方式会创建多个线程，同时会让代码看起来比较冗余。<br/>
 在这里我们可以使用一个小技巧：首先将监听文件类型设置为默认值，即监听全部文件，然后在监听事件回调函数中，通过代码判断所监听到的文件是否为需要指定文件类型。
 
-	```csharp
-	//Filter Watching Files.
-	string[] watchingFilter = { ".tif", ".tiff" };
-    var ext = (Path.GetExtension(e.FullPath) ?? string.Empty).ToLower();
-    var all = ".*";
-    if (watchingFilter.Any(ext.Equals) || watchingFilter.Any(all.Equals) || watchingFilter.Length == 0)
-    {
-		// do something
-    }
-	```
+```csharp
+//Filter Watching Files.
+string[] watchingFilter = { ".tif", ".tiff" };
+var ext = (Path.GetExtension(e.FullPath) ?? string.Empty).ToLower();
+var all = ".*";
+if (watchingFilter.Any(ext.Equals) || watchingFilter.Any(all.Equals) || watchingFilter.Length == 0)
+{
+	// do something
+}
+```
 
-3. 还有一个问题是 FileSystemWatcher 类本身的问题，在创建或复制新文件到监听目录时，往往会连续触发 Created 和 Changed 事件，而我们需要只触发一次 Created 事件。Vipul Prashar 实现了一个增强的 FileSystemWatcher， 通过简单的比较当前事件与上一次事件发生的时间间隔，在时间间隔较小的情况时，合并两个事件，具体可以参考[这里](http://www.codeproject.com/Articles/102493/Enhanced-FileSystemWatcher)。
+#####3) 多次事件触发
+
+还有一个问题是 FileSystemWatcher 类本身的问题，在创建或复制新文件到监听目录时，往往会连续触发 Created 和 Changed 事件，而我们需要只触发一次 Created 事件。Vipul Prashar 实现了一个增强的 FileSystemWatcher， 通过简单的比较当前事件与上一次事件发生的时间间隔，在时间间隔较小的情况时，合并两个事件，具体可以参考[这里](http://www.codeproject.com/Articles/102493/Enhanced-FileSystemWatcher)。
 
 ## 三、其它功能
 
