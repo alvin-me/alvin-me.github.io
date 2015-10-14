@@ -12,6 +12,7 @@ tags : [resource]
 ## 博文
 
 * [GitHub小技巧：为README添加图像 & Demo演示](http://solutionoptimist.com/2013/12/28/awesome-github-tricks/)
+* [Jekyll中使用MathJax](http://www.pkuwwt.tk/linux/2013-12-03-jekyll-using-mathjax/)
 
 ## 软件
 

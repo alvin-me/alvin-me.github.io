@@ -1,0 +1,122 @@
+---
+layout: post
+title: "预积分传递函数"
+tagline: ""
+category : tech
+tags : ["体绘制", "传递函数"]
+---
+
+<p>使用预积分技术可以提高体绘制图像质量，下面从预积分的理论和实现分别进行介绍。</p>
+
+<h2>一、理论</h2>
+
+<h4>1、为什么要使用预积分</h4>
+
+<p>
+首先要了解以下知识：<br/>
+<strong>分类(classification)</strong>是使用传递函数把原始体数据中的标量值$s=s(x)$映射为RGBA值，即颜色$c(s(x))$和阻光度系数$\kappa(s(x))$。<br/>
+<strong>体绘制积分方程</strong>
+$$I(D)=I_0e^{-\int_{s_0}^D \kappa(t) {\rm d}t}+\int_{s_0}^D q(s)e^{-\int_s^D \kappa(t) {\rm d}t} {\rm d}s，\tag{1}\label{1}$$
+<strong>体绘制积分方程离散形式</strong>
+$$I(D)=\sum_{i=0}^n c_i \prod_{j=i+1}^n T_j, 其中 c_0=I(s_0)。\tag{2}\label{2}$$
+</p>
+
+<p>
+根据采样定理，只有满足奈奎斯特定律才能正确重构。对于离散形式的体绘制积分方程，当采样间隔$d$趋于0时，才能产生完全正确的图像。然而由于传递函数的非线性特性，会造成体绘制积分正确赋值所需的采样频率急剧增加。颜色值$c(s(x))$和阻光度系数$\kappa(s(x))$的奈奎斯特频率为$c(s)$和$\kappa(s)$二者的奈奎斯特频率中的最大值与标量场$s(x)$的奈奎斯特频率的乘积。进行体绘制积分时，往往由于采样频率不能满足该奈奎斯特频率，而造成图像质量下降，产生<strong>伪影(aliasing artifacts)</strong>，如图1左所示。而且过高的采样频率会增加运算量，降低绘制速度。
+</p>
+
+<div class="illustration">
+	<img src="{{ BASE_PATH }}/images/compare for pre-integration.png" alt="compare for pre-integration" width="80%"/>
+	<div class="text"><p>Fig.1 传统体绘制(左)与预积分分类(右)的比较</p></div>
+</div>
+
+<p>为了克服以上限制，必须修改积分运算。目前已经有人提出了多种改进方案，如采用高阶积分方案，自适应采样，等等。然而这些方法都没有明确的解决非线性传递函数分类得到的颜色$q(s)$和阻光度系数$\kappa(s)$的奈奎斯特高频问题。预积分分类把数学积分分为两部分：一是沿视线方向对连续标量场$s(x)$采样，此时采样所需奈奎斯特频率与传递函数无关；二是传递函数颜色$c(s(x))$和阻光度系数$\kappa(s(x))$的积分。</p>
+
+
+<h4>2、预积分公式推导</h4>
+<p>
+第一步是沿着光线方向对连续标量场s(x)进行采样,这些采样点的奈奎斯特频率不受传递函数的影响。为了达到预积分分类的目的，采样值定义了一个一维的分段线性标量场。对该分段线性标量场的积分，可以通过为每一个线性片段生成一个查找表来高效实现。该查找表包括三个参数：线性段的前采样点的值$s_f:=s(x(id))$，线性段的后采样点的值$s_b:=s(x((i+1)d))$，以及线性段的长度$d$，如图2所示。
+<div class="illustration">
+	<img src="{{ BASE_PATH }}/images/Scheme for determining the color and opacity of the ith ray segment.png" alt="Scheme for determining the color and opacity of the ith ray segment" width="70%"/>
+	<div class="text"><p>Fig.2 确定第i个线性段的颜色和不透明度</p></div>
+</div>
+第i个线性段的阻光度$\alpha_i$计算公式
+$$ \begin{align}
+\alpha_i & = 1-exp(-\int_{id}^{(i+1)d} \kappa(s(x(\lambda))) {\rm d}\lambda) \\
+& \approx 1-exp(-\int_0^1 \kappa((1-\omega)s_f+\omega s_b)d {\rm d}\omega)
+\tag{3}\label{3} \end{align} $$
+第i个线性段的颜色$c_i$计算公式
+$$c_i=\int_0^1 q((1-\omega)s_f+\omega s_b) \times exp(-\int_0^\omega \kappa((1-\omega')s_f+\omega's_b)d {\rm d}\omega')d {\rm d}\omega \tag{4}\label{4}$$
+$\alpha_i$和$c_i$是前采样点的值$s_f$、后采样点的值$s_b$以及片段长度$d$的函数。预积分分类通过以下公式获得一条光线上的颜色积分值
+$$I \approx \sum_{i=0}^n c_i \prod_{j=0}^{i-1} (1-\alpha_j) \tag{5}\label{5}$$
+</p>
+
+<p>
+预积分分类体绘制方法计算光线上相邻两个采样点之间线段的颜色和不透明度，该颜色和不透明度由参数$s_f$、$s_b$、$d$共同决定；而传统分类方法只计算每个采样点位置的颜色和不透明度，由该采样点位置的标量值$s$和间隔$d$共同决定。预积分分类体绘制方法计算图像像素值时，首先对光线上每个小片段进行积分，得到厚度为$d$的薄板层的颜色和不透明度，再进行体绘制积分运算；而传统方法只使用采样点处的颜色和不透明度进行体绘制积分运算。因此也称前者为slab-by-slab的积分方式，后者为slice-by-slice积分方式。其示意图如图3所示：
+</p>
+
+<div class="illustration">
+	<img src="{{ BASE_PATH }}/images/slab-by-slab.jpg" alt="slab-by-slab" width="auto"/>
+	<div class="text"><p>Fig.3 slice-by-slice和slab-by-slab</p></div>
+</div>
+
+<h4>3、使用积分函数加速计算</h4>
+<p>预积分分类的一个缺点是每当传递函数发生变化时，需要重新计算大量的光线片段的颜色和阻光度的值。以下提出了一些优化。</p>
+
+<h5>1) 降低预积分表的维度</h5>
+<p>可以通过把片段的长度设置为常量，把映射查找表的维度从三维降为二维。很明显，这适合于等间距采样。它也适合于3D纹理的正投影，对于透视投影也是比较好的估算。但是对于axis-aligned的2D纹理来说，不是一个好的方法。</p>
+
+<h5>2) 局部运算</h5>
+<p>对于传递函数的局部改变，没必要重新计算整个查找表。比如传递函数中标量值s发生了改变，只需要重新计算查找表中的这些值：$c(s_f,s_b,d)$，$\kappa(s_f,s_b,d)$，其中$s_f \leq s \leq s_b$ 或者$s_b \leq s \leq s_b$。最坏情况下，查找表的一半内容需要重新计算。</p>
+
+<h5>3) 引入积分函数，能够极大提升效率</h5>
+<p>
+积分函数可以加速上述方程\eqref{3}\eqref{4}\eqref{5}的运算，函数$f(x)$的积分表达式为
+
+$$F(x)=\int_a^b f(x) {\rm d}x \tag{6}\label{6}$$
+
+对任意区间[a,b]的积分通过积分函数$G(s)$
+
+$$G(s)=\int_0^s f(x) {\rm d}x \tag{7}\label{7}$$
+
+可以表达为
+
+$$F(x)=G(b)-G(a) \tag{8}\label{8}$$
+</p>
+
+<p>
+再来看我们之前方程\eqref{3}\eqref{4}\eqref{5}的积分运算，我们只需要首先计算所有标量值的积分函数G(s)，对于所有标量值$s_f$和$s_b$的组合积分只需要通过计算二者积分的差得到。于是，方程\eqref{3}阻光度的计算可变形为
+
+$$ \begin{align}
+\alpha_i & \approx 1-exp(-\int_0^1 \kappa((1-\omega)s_f+\omega s_b)d {\rm d}\omega) \\
+& = 1-exp(-\frac{d}{s_b-s_f}\int_{s_f}^{s_b} \kappa(s) {\rm d}s) \\
+& = 1-exp(-\frac{d}{s_b-s_f} (T(s_b)-T(s_f)))
+\end{align} \tag{9}\label{9} $$
+
+其中，$$T(s)=\int_0^s \kappa(s') {\rm d}{s'} \tag{10}\label{10}$$
+</p>
+
+<p>
+对颜色值方程\eqref{4}的计算采用积分方程需要忽略slab内部的自衰减，即公式中的指数项。
+
+$$ \begin{align}
+c_i & \approx \int_0^1 q((1-\omega)s_f+\omega s_b)d {\rm d}\omega \\
+& = \frac{d}{s_b-s_f} \int_{s_f}^{s_b} q(s) {\rm d}s \\
+& = \frac{d}{s_b-s_f} (K(s_b)-K(s_f))
+\end{align} \tag{11}\label{11}$$
+
+其中，$$K(s)=\int_0^s q(s') {\rm d}{s'} \tag{12}\label{12}$$
+</p>
+
+
+<h2>二、实现</h2>
+
+<p>
+以下计算预积分二维查找表中每个线性段的积分。正如之前我们假设的，线性段长度为常量，查找表只和$s_f$、$s_b$有关。该查找表存储为二维纹理，保存了所有的$s_f$和$s_b$的线性段组合。对于8位的RGBA传递函数，预积分查找表大小为$256\times256$。
+</p>
+<p>
+需要注意的是，对于更高精度的传递函数，预积分查找表会变的相当大。例如，一个12位的传递函数，会生成$4096\times4096$的纹理，占用64MB的内存。
+</p>
+<p>
+未完待续......
+</p>

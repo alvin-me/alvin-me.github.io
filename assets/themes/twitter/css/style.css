@@ -17,6 +17,10 @@ time, mark, audio, video {
 }
 article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section { display: block; }
 blockquote, q { quotes: none; }
+article .main_content blockquote {
+  padding: 10px 10px;
+  border-left: 5px solid #eee;
+}
 blockquote:before, blockquote:after, q:before, q:after { content: ''; content: none; }
 ins { background-color: #ff9; color: #000; text-decoration: none; }
 mark { background-color: #ff9; color: #000; font-style: italic; font-weight: bold; }
@@ -388,6 +392,14 @@ article img {
   margin-left: auto;
   margin-right: auto;
   max-width: 100%;
+}
+.illustration{
+  text-align: center;
+  margin-bottom: 5px;
+}
+.illustration .text {
+  color: #555;
+  font-size: 90%;
 }
 
 /*  Input  */

@@ -8,7 +8,9 @@
                 <!-- <div class="pull-left"><span>{{ page.date | date_to_long_string }}</span></div> -->
                 <div class="pull-right">{% include widgets/share_buttons %}</div>
             </div>
-            {{ content }}
+			<div class="main_content">
+				{{ content }}
+			</div>
             <footer>
                 <blockquote>于{{ page.date | date: "%Y年%m月%d日" }}，共写了{{ content | strip_html | strip_newlines | split: "" | size }}字;</blockquote>
             </footer>
