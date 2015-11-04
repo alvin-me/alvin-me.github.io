@@ -3,7 +3,7 @@ layout: post
 title: "资源列表"
 category : resource
 tagline: 
-tags : [resource]
+tags : [资源]
 ---
 {% include JB/setup %}
 

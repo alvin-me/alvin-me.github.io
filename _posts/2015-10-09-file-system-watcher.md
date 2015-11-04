@@ -3,7 +3,7 @@ layout: post
 title: "文件监测系统"
 tagline: "FileWatcher"
 category : tech
-tags : ["FileSystemWatcher"]
+tags : ["软件"]
 ---
 
 总结下前段时间使用 WPF 实现的一个简单的文件监测系统，主要功能是监测某个指定文件夹下指定类型的文件的添加、修改、删除、重命名事件。
