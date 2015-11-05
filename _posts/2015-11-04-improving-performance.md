@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "8.1 提高性能"
+title: "提高性能 (1)"
 tagline: ""
 category : doc
 tags : ["体绘制"]
@@ -50,5 +50,24 @@ GPU支持1D，2D，3D mipmapping纹理，可以存储多层mipmap并在渲染过
 
 使用块级方法可以增加相邻体素的位置相关性。如果我们访问同一块级内的数据，数据寻址时间要远小于寻址线性内存分布的时间。再次，请记住局部内存访问增加缓存命中率。blocks/bricks是一个一个线性排列的。然而位于不同的块级元素的体素寻址仍然距离很大，实际上我们并不需要跨越blocks进行数据访问，所有的内存跨blocks级的访问都可以通过使用blocks的重叠来达到目标。
 
+## 二、异步数据上传
+
+异步数据传输允许计算机CPU持续工作的同时传输数据。当CPU启动了数据传输任务后，剩下的传输本身是由<abbr title="direct memory access">DMA</abbr>控制器完成。
+
+如果体数据太大，不能一次性全部存储到GPU显存中，就需要将数据进行分块，在渲染时再将所需要的块数据传输到GPU显存中。为了保证数据上传时的性能，首先要在内存中将块数据准备好，这些块数据是作为一个连续的数据块包含相邻块的重叠，被发送到GPU。
+
+当使用OpenGL命令 `glTexSubImage3D`或`glTexSubImage2D`发送纹理数据到GPU时，CPU通常先将数据复制到<abbr title="accelerated graphics port">AGP</abbr>内存并保持CPU阻塞直到数据被发送到GPU。因此，所有后续OpenGL命令需要在数据传输完成以后才能执行。像素缓冲区对象(PBO)支持使用DMA异步上传数据到GPU，即如果使用异步传输CPU不会被阻塞。然而，数据必须首先已经以GPU内部格式存储在AGP内存中。
+
+如上一节所提到的，一些图形显卡通过重排数据格式来存储三维纹理数据以参加相邻数据的位置相关性。这样做的后果是，CPU在上传数据到GPU前，首先要在内存中重新排列数据。阻止CPU参与到数据上传的方法是在内存中使用GPU内部格式存储数据，然后告诉驱动数据已经准备好。然而目前没有官方OpenGL机制可以实现这种方案。
+
+Non-power-of-two(NPOT)纹理不需要在上传数据到GPU前，重排和拷贝数据。因此，NPOT纹理可以以理论极限带宽值进行异步传输。
+
+需要指出的是，NPOT纹理应该足够小，防止在依赖视线的渲染中，因内存访问缓存导致的渲染性能下降。我们建议使用NPOT纹理分辨率大小接近 $64\times64\times64$, 例如 $64\times64\times63$。
+
+为了达到最佳上传性能，使用OpenGL扩展`ARB_pixel_buffer_object`将纹理数据以异步流 `stream` 形式传入GPU。使用PBOs通过DMA控制器从AGP内存中异步传输数据到GPU显存中。
+
+我们在NVIDIA GeForce 6800 TG PCIe x16上测试使用PBO上传NPOT三纹理数据大约是没有使用PBO传输速度的4倍。注意，在最佳情况下的带宽使用情况仍然远未达到PCIe x16的理论带宽值4GB每秒。这可能是由于NVIDIA板上的AGP/PCIe桥造成的。
+
+
 <br/>
-翻译自 "[Real-Time Volume Graphics](http://www.real-time-volume-graphics.org/)" 8.1小节。
+翻译自 "[Real-Time Volume Graphics](http://www.real-time-volume-graphics.org/)" 8.1，8.2小节。
