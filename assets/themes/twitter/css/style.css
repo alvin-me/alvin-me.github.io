@@ -401,6 +401,15 @@ article img {
   color: #555;
   font-size: 90%;
 }
+.illustration_float{
+  text-align: center;
+  margin-bottom: 5px;
+  float:left
+}
+.illustration_float .text {
+  color: #555;
+  font-size: 90%;
+}
 
 /*  Input  */
 input {
