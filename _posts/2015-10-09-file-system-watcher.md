@@ -86,5 +86,5 @@ if (watchingFilter.Any(ext.Equals) || watchingFilter.Any(all.Equals) || watching
 * 添加列表项右键菜单功能，可以快速对选中监听项指定文件进行操作，如打开文件、打开文件位置，以及删除文件。
 ![menu](https://cloud.githubusercontent.com/assets/14179733/10384924/08712622-6e75-11e5-8b29-0c5d432d7340.png)
 
-具体实现请参考[我的代码仓库](https://github.com/alvin-me/FileWatcher)。
+具体实现请参考[我的代码仓库]()。
 
